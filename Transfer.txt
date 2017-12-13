@@ -1,0 +1,50 @@
+pragma solidity ^0.4.11;
+contract Transfer {
+    // constant for wei to ether convertor
+    uint constant private WEI=1000000000000000000;
+	
+	// mapper to save data of accounts
+     mapping (address=>uint) private _accounts;
+    
+	// contract owner address
+	 address private  owner;
+	 
+	 // modifier for owner
+     modifier onlyOwner(){
+        require(owner == msg.sender);
+        _;
+    }
+    
+	// modifier for other than owner
+     modifier notOwner(){
+        require(owner != msg.sender);
+        _;
+    }
+    
+	// constructor to set owner address
+    function Transfer() public {
+      owner=msg.sender;   
+    }
+
+	// function to get balance of contract 
+    function getBalance() public onlyOwner returns (uint){
+        return this.balance;
+    }
+    
+	// function to deposit balance in contract 
+    function deposit () public payable notOwner returns (bool) {
+        require( uint(msg.value) > 0 && msg.sender !=0);
+        _accounts[msg.sender] += uint(msg.value);
+        return true;
+    }
+	
+	// function to withdraw balance from contract
+    function withdraw (uint _withdrawAmount) public notOwner returns (bool){        
+        require(_withdrawAmount >0 && msg.sender !=0);
+        require(_accounts[msg.sender] >=_withdrawAmount);
+        _accounts[msg.sender]-=_withdrawAmount;
+        msg.sender.transfer(_withdrawAmount *  WEI);
+        return true;
+    } 
+    
+}
